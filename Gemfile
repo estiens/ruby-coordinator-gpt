@@ -1,0 +1,12 @@
+source 'https://rubygems.org'
+
+gem 'dotenv'
+gem 'pg'
+gem 'pinecone'
+gem 'pry'
+gem 'ruby-openai'
+gem 'textwrap'
+gem 'tiktoken_ruby'
+gem 'tty-spinner'
+gem 'uuidtools'
+gem 'rspec'

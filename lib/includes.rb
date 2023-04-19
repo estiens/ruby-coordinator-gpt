@@ -1,0 +1,12 @@
+require 'openai'
+require 'json'
+require 'dotenv/load'
+# require 'colorize'
+require 'nokogiri'
+require 'open-uri'
+require 'pry'
+require 'tty-spinner'
+
+require_relative 'workers/web_search'
+require_relative 'memory/postgres'
+require_relative 'config'
