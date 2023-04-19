@@ -1,0 +1,167 @@
+
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines, beginning_only, ending_only
+Layout/EmptyLinesAroundClassBody:
+  Exclude:
+    - 'lib/config.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+Layout/LeadingEmptyLines:
+  Exclude:
+    - 'spec/spec_helper.rb'
+
+# Offense count: 22
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns, IgnoredPatterns.
+# URISchemes: http, https
+Layout/LineLength:
+  Max: 361
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: final_newline, final_blank_line
+Layout/TrailingEmptyLines:
+  Exclude:
+    - 'lib/services/file_service.rb'
+    - 'lib/services/web_scrape_service.rb'
+
+# Offense count: 1
+# Configuration parameters: DebuggerReceivers, DebuggerMethods.
+Lint/Debugger:
+  Exclude:
+    - 'lib/runner.rb'
+
+# Offense count: 1
+Lint/DuplicateMethods:
+  Exclude:
+    - 'lib/workers/base_worker.rb'
+
+# Offense count: 5
+# Configuration parameters: AllowComments.
+Lint/EmptyFile:
+  Exclude:
+    - 'spec/rubocop/intentionally_empty_file.rb'
+    - 'lib/prompts.rb'
+    - 'lib/services/execute_shell_command_service.rb'
+    - 'lib/services/image_search_service.rb'
+    - 'lib/services/summarize_text_service.rb'
+    - 'lib/services/web_search_service.rb'
+
+# Offense count: 2
+Lint/ImplicitStringConcatenation:
+  Exclude:
+    - 'lib/runner.rb'
+
+# Offense count: 1
+# This cop supports unsafe autocorrection (--autocorrect-all).
+Lint/NonDeterministicRequireOrder:
+  Exclude:
+    - 'spec/spec_helper.rb'
+
+# Offense count: 4
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: strict, consistent
+Lint/SymbolConversion:
+  Exclude:
+    - 'lib/workers/worker.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+Lint/TripleQuotes:
+  Exclude:
+    - 'lib/runner.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods, IgnoreNotImplementedMethods.
+Lint/UnusedMethodArgument:
+  Exclude:
+    - 'lib/runner.rb'
+
+# Offense count: 3
+# Configuration parameters: CountComments, CountAsOne, ExcludedMethods, AllowedMethods, AllowedPatterns, IgnoredMethods.
+Metrics/MethodLength:
+  Max: 26
+
+# Offense count: 1
+# Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers, AllowedPatterns.
+# SupportedStyles: snake_case, normalcase, non_integer
+# AllowedIdentifiers: capture3, iso8601, rfc1123_date, rfc822, rfc2822, rfc3339
+Naming/VariableNumber:
+  Exclude:
+    - 'lib/workers/base_worker.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+Style/BlockComments:
+  Exclude:
+    - 'spec/spec_helper.rb'
+
+# Offense count: 10
+# Configuration parameters: AllowedConstants.
+Style/Documentation:
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+    - 'lib/config.rb'
+    - 'lib/memory/postgres.rb'
+    - 'lib/runner.rb'
+    - 'lib/services/base_service.rb'
+    - 'lib/services/file_service.rb'
+    - 'lib/services/web_scrape_service.rb'
+    - 'lib/workers/base_worker.rb'
+    - 'lib/workers/execute_shell_command_worker.rb'
+    - 'lib/workers/web_search.rb'
+    - 'lib/workers/worker.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: compact, expanded
+Style/EmptyMethod:
+  Exclude:
+    - 'lib/workers/worker.rb'
+
+# Offense count: 5
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowedVars.
+Style/FetchEnvVar:
+  Exclude:
+    - 'lib/config.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+Style/FileWrite:
+  Exclude:
+    - 'lib/services/file_service.rb'
+
+# Offense count: 16
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: always, always_true, never
+
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+Style/IfUnlessModifier:
+  Exclude:
+    - 'lib/memory/postgres.rb'
+    - 'lib/services/file_service.rb'
+
+# Offense count: 1
+Style/OpenStructUse:
+  Exclude:
+    - 'spec/services/web_scrape_service.rb'
+
+# Offense count: 7
+# This cop supports unsafe autocorrection (--autocorrect-all).
+Style/RequireOrder:
+  Exclude:
+    - 'lib/includes.rb'
+    - 'lib/services/web_scrape_service.rb'

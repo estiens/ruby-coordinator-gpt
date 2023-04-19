@@ -1,5 +1,5 @@
 require_relative 'base_service'
-
+require 'fileutils'
 module Services
   class FileService < BaseService
     FILE_PATH = "#{Dir.pwd}/workspace".freeze
@@ -59,6 +59,13 @@ module Services
         file.write(@text)
       end
       "I have appended the following to #{@path}: #{@text}"
+    end
+
+    def create_directory
+      dirname = File.dirname(@path)
+      unless File.directory?(dirname)
+        FileUtils.mkdir_p(dirname)
+      end
     end
 
     def list_directory
