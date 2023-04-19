@@ -17,7 +17,7 @@ module Services
 
       public_send(method)
     rescue StandardError => e
-      e.message
+      "There was an error #{e.class} - #{e.message}"
     end
 
     private

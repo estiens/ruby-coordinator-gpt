@@ -13,7 +13,7 @@ module Services
     end
 
     def available_commands
-      %i[read_file write_file append_file list_directory create_directory]
+      %i[read_file write_file append_file list_directory create_directory delete_file]
     end
 
     def check_path
@@ -30,7 +30,8 @@ module Services
         append_file: :append_file,
         list: :list_directory,
         list_directory: :list_directory,
-        create_directory: :create_directory
+        create_directory: :create_directory,
+        delete_file: :delete_file
       }
     end
 
