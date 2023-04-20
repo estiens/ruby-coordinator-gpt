@@ -1,7 +1,8 @@
+require_relative '../includes'
 class Worker
   attr_reader :name, :task, :status
 
-  def initialize(name:, goal:, status: :starting)
+  def initialize(name: 'Research Worker', goal:'Summarize recent research into autonomous AI and create a file of learnings', status: :starting)
     @name = name
     @goal = goal
     @status = status
@@ -14,52 +15,53 @@ class Worker
 
     @status = :in_progress
 
-    response = JSON.parse(request_next_step)
-    @messages << { 'role': 'assistant', 'message': response['thought'] }
+    json_response = request_next_step
+    @messages << { role: 'assistant', message: json_response }
+    action = take_action_from(json_response)
   end
 
-  def find_current_context
+  def take_action_from(json_response)
+    command = json_response['command']
+    arguments = json_response['arg'] || json_response['args']
+    args = {}
+    arguments.each { |k,v| args[k.to_sym] = v }
+    action_dispatcher(command: command, args: args)
   end
+
+  def action_dispatcher(command:, args:)
+
+  end
+
+  def find_current_context; end
 
   def request_next_step
-    @messages << { 'role': 'user', 'message': 'worker_prompt' }
+    @messages << { role: 'user', message: 'worker_prompt' }
     response = OpenAiClient.system_chat(worker_prompt)
     JSON.parse(response)
-  end
-
-  def prompt_start
-    prompt = "You are a worker that can #{worker_abilities} created by an autonomous system\n"
-    prompt += "Your current task is: #{@goal}\n"
-    prompt += 'You are to run indepently without user input. You should think about your plan,'
-    prompt += "review what has happened, and decide on the next step. Carefully consider your next command.\n"
-    prompt += "Use only non-interactive shell commands.\n"
-    prompt
+  rescue StandardError => e
+    binding.pry
   end
 
   def worker_prompt
-    prompt = prompt_start
-    prompt += "When you have achieved the objective, you may issue the command job_success or job_failure
-    depending on the results. Otherwise, respond with a JSON-encoded dict containing one of the
-    commands: #{worker_abilities.join('/ ')}"
+    prompts = YAML.load_file('prompts/worker_prompts.yml')
+    prompt = prompts['prompt_start'] + worker_abilities.join(',')
+    prompt += prompts['command_prompt']
+    prompt += prompts['prompt_end']
+    prompt
+  end
 
-    prompt += "\nYour workspace is the './workspace' directory -
-    you may create subdirectories as needed but you may not create files outside of the workspace directory."
+  def available_commands
+    @available_commands ||= YAML.load_file('lib/services/available_commands.yml')
+  end
 
-    prompt += "\nYour response should look like: {'thought': '[REASONING]', 'cmd': '[COMMAND]', 'arg': '[ARGUMENT]'}"
-
-    prompt += "Examples:\n"
-    prompt += "{'thought': 'First, I will search for websites relevant to salami pizza.',
-    'cmd': 'web_search', 'arg': 'salami pizza'}"
-    prompt += "{'thought': I am going to scrape information about Apples.',
-    'cmd': 'web_scrape', 'arg': 'https://en.wikipedia.org/wiki/Apple'}"
-    prompt += 'IMPORTANT: ALWAYS RESPOND ONLY WITH THIS EXACT JSON FORMAT.'
-    prompt += 'DOUBLE-CHECK YOUR RESPONSE TO MAKE SURE IT CONTAINS VALID JSON.'
-    prompt += 'DO NOT INCLUDE ANY EXTRA TEXT WITH THE RESPONSE'
-    prompt.strip
+  def worker_commands
+    available_commands.map { |_service, info| info['commands'] }.flatten
   end
 
   def worker_abilities
-    %i[search_web write_file read_file read_website execute_shell_command summarize_text list_directory
-       create_file edit_file delete_file job_success job_failure]
+    available_commands.map do |service, info|
+      { service: service, description: info['description'],
+        arguments: info['arguments'], command: info['commands'], args: info['args'] }
+    end
   end
 end

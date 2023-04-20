@@ -1,7 +1,7 @@
 
 require 'pry'
 
-# Dir['./lib/*.rb'].each { |file| require file }
+Dir['./lib/*.rb'].each { |file| require file }
 Dir['./lib/**/*.rb'].each { |file| require file }
 
 RSpec.configure do |config|
