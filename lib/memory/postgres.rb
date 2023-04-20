@@ -15,13 +15,25 @@ class PostgresMemory < BaseMemory
     # clear_table
   end
 
-  def add_to_context(data)
+  def add(data)
     vector = create_ada_embedding(data)
+    unless vector.is_a? Array
+      return nil
+    end
     id = UUIDTools::UUID.random_create
     @conn.exec_params(
       'INSERT INTO memory (id, vector, data) VALUES ($1, $2, $3);',
       [id.to_s, to_pg_array(vector), data]
     )
+  end
+
+  def add_memory(memory)
+    summarized = summarize_memory(memory)
+    if summarized.is_a? Array
+      summarized.each { |item| add(item) }
+    else
+      add(summarized)
+    end
   end
 
   def get_context(data, num = 5)
@@ -32,8 +44,7 @@ class PostgresMemory < BaseMemory
 
     top_k_vectors = all_vectors.first(num)
     results_list = top_k_vectors.map { |item| item[2] }
-    context = results_list.join("\n")
-    summarize_memory(context)
+    results_list.join("\n")
   end
 
   private
@@ -58,7 +69,7 @@ class PostgresMemory < BaseMemory
   end
 
   def to_pg_array(array)
-    "#{array.join(',')}}"
+    "{#{array.join(',')}}"
   end
 
   def cosine_similarity(array_one, array_two)

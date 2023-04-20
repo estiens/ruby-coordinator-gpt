@@ -3,8 +3,8 @@ module Services
     def initialize(command:, args: {})
       raise ArgumentError, 'You must provide a command' if command.nil?
 
-      @command = command
-      @args = args
+      @command = command.to_sym
+      @args = args.transform_keys(&:to_sym)
     end
 
     def available_commands

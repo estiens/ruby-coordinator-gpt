@@ -6,6 +6,10 @@ class Config
     ENV['OPENAI_API_KEY']
   end
 
+  def self.workspace_path
+    "#{Dir.pwd}/workspace"
+  end
+
   def self.base_model
     ENV.fetch('BASE_MODEL', 'gpt-4')
   end

@@ -6,7 +6,7 @@ module Services
 
     def initialize(command: nil, args: {})
       super(command: command, args: args)
-      @shell_command = args[:shell_command]
+      @shell_command = args[:shell_command] || args[:command] || args[:cmd]
     end
 
     def available_commands
@@ -20,12 +20,12 @@ module Services
     end
 
     def run_shell_command
-      raise ArgumentError, 'You must provide a shell command' if @shell_command.nil?
+      raise ArgumentError, "The proper syntax is command: run_shell_command, arguments: shell_command='ls'" if @shell_command.nil?
       if disallowed_command?(@shell_command)
         raise ArgumentError, 'This shell command is not allowed'
       end
 
-      `#{@shell_command}`
+      `#{@shell_command} 2>&1`
     end
 
     private

@@ -1,14 +1,13 @@
 require_relative 'base_service'
+require_relative '../config'
 require 'fileutils'
 module Services
   class FileService < BaseService
-    FILE_PATH = "#{Dir.pwd}/workspace".freeze
-
     def initialize(command: nil, args: {})
       super(command: command, args: args)
 
       @path = args[:path]
-      @text = args[:text]
+      @text = args[:text] || args[:content]
       check_path
     end
 
@@ -17,8 +16,19 @@ module Services
     end
 
     def check_path
-      raise ArgumentError, 'You must provide a path' if @path.nil?
-      raise ArgumentError, 'Path must not be outside the workspace' unless @path.start_with?(FILE_PATH)
+      return 'You must provide a path' if @path.nil?
+
+      @path.gsub!('./workspace', 'workspace')
+      @path.gsub!('workspace', "#{workspace_path}")
+      @path = "#{workspace_path}/#{@path}" unless @path.start_with?(workspace_path)
+
+      return if @path.start_with?(workspace_path)
+
+      "Path must not be outside the workspace - you gave me #{@path}"
+    end
+
+    def workspace_path
+      Config.workspace_path
     end
 
     def command_mapping
@@ -48,7 +58,9 @@ module Services
     end
 
     def write_file
-      File.open(@path, 'w') do |file|
+      return 'You must provide text to write with a :text argument' if @text.nil?
+
+      File.open(@path, 'a+') do |file|
         file.write(@text)
       end
       "I have written the following to #{@path}: #{@text}"
@@ -63,9 +75,8 @@ module Services
 
     def create_directory
       dirname = File.dirname(@path)
-      unless File.directory?(dirname)
-        FileUtils.mkdir_p(dirname)
-      end
+      FileUtils.mkdir_p(dirname) unless File.directory?(dirname)
+      dirname
     end
 
     def list_directory

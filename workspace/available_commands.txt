@@ -1,5 +1,5 @@
 file_service:
-  description: "Work with files in your workspace at ./workspace"
+  description: "Work with files in your workspace at #{Services::FileService::FILE_PATH}"
   arguments: "Takes a :path argument with the absolute path to the file or directory"
   commands:
     - :read_file
@@ -9,7 +9,7 @@ file_service:
     - :list_directory
   args:
     - :path
-  klass: FileService
+
 shell:
   description: "Execute shell commands with :run_shell_command"
   arguments: "Takes a :shell_command argument with the shell command to execute"
@@ -17,7 +17,7 @@ shell:
     - :run_shell_command
   args:
     - :shell_command
-  klass: ShellCommandService
+
 web_search:
   description: "Search the web for information"
   arguments: "Takes a :query argument with the search query, optionally can specific a type of search with :type (image, video, news, shopping, web)"
@@ -26,7 +26,7 @@ web_search:
   args:
     - :query
     - :type(optional)
-  klass: WebSearchService
+
 web_scrape:
   description: "Retrieve the text of a webpage and put it in your memory"
   arguments: "Takes a :url argument with the url of the webpage to scrape"
@@ -34,7 +34,7 @@ web_scrape:
     - :scrape_text
   args:
     - :url
-  klass: WebScrapeService
+
 email:
   description: "Send an email"
   arguments: "Requires :to, :subject, and :body arguments"
@@ -44,4 +44,3 @@ email:
     - :to
     - :subject
     - :body
-  klass: EmailService

@@ -4,6 +4,7 @@ require_relative '../open_ai_client'
 class BaseMemory
   def initialize
     @config = Config.new
+    @client = OpenAiClient.new
   end
 
   def add(data)
@@ -14,18 +15,18 @@ class BaseMemory
     raise NotImplementedError
   end
 
-  def summarize_memory(memory, max_tokens: 2000)
-    return memory if memory.length < max_tokens
+  def summarize_memory(memory, max_tokens: 2500)
+    return @client.summarize_memory(memory) if get_tokens(memory) < max_tokens
 
     text_chunks = chunk(memory, max_tokens)
-    OpenAiClient.summarize_memory(text_chunks)
+    text_chunks.map { |chunk| @client.get_summary(text: chunk) }
   end
 
   def summarize_text(text, max_tokens: 2500)
-    return OpenAiClient.get_summary(text:) if text.length < max_tokens
+    return @client.get_summary(text: text) if get_tokens(text) < max_tokens
 
     text_chunks = chunk(text, max_tokens)
-    text_chunks.map { |chunk| OpenAiClient.get_summary(text: chunk) }
+    text_chunks.map { |chunk| @client.get_summary(text: chunk) }
   end
 
   # private
@@ -36,14 +37,18 @@ class BaseMemory
     encoding = Tiktoken.encoding_for_model('gpt-3.5-turbo')
 
     tokens = encoding.encode(string)
-    tokens.map do |token|
-      [token, bias.to_i]
-    end.to_h
+    tokens.to_h { |token| [token, bias.to_i] }.length
   end
 
   def create_ada_embedding(data)
+    puts "Creating embedding for #{data}"
+    if get_tokens(data) > 5000
+      data = summarize_text(data, max_tokens: 4000)
+      puts "Summarized data to #{data}"
+    end
     vector = OpenAiClient.get_embeddings(data)
-    vector['data'].first&.dig('embedding')
+    embedding = vector['data']&.first&.dig('embedding')
+    embedding.is_a?(Array) ? embedding : [embedding]
   end
 
   def chunk(string, size)

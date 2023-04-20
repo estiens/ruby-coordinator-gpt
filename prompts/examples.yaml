@@ -1,0 +1,12 @@
+examples:
+  - thoughts: 'I need to write a note to myself'
+    command: 'write_file'
+    args:
+      path: './workspace/note.txt'
+      content: 'I need to write a note to myself'
+    learnings: 'Sometimes I forget things and it helps to write them down'
+  - thoughts: 'I need to read the note I wrote to myself'
+    command: 'read_file'
+    args:
+      path: './workspace/note.txt'
+    learnings: 'I should write more notes to myself'

@@ -26,7 +26,7 @@ module Services
                                 serp_api_key: '2ce4f8f301b18afbe18f642387c223d026c023ed740be146633ded9fdd54f8b2')
       results = search.get_hash
       results = results&.dig(:organic_results)&.first(5).to_json
-      results
+      OpenAiClient.new.summarize_search(results)
     end
   end
 end
