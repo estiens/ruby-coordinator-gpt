@@ -18,10 +18,10 @@ module Services
     def check_path
       return 'You must provide a path' if @path.nil?
 
-      @path.gsub!('./workspace', 'workspace')
-      @path.gsub!('workspace', "#{workspace_path}")
-      @path = "#{workspace_path}/#{@path}" unless @path.start_with?(workspace_path)
-
+      # @path.gsub!('./workspace', 'workspace')
+      # @path.gsub!('workspace', workspace_path)
+      # @path = "#{workspace_path}/#{@path}" unless @path.start_with?(workspace_path)
+      # @path.gsub!('//', '/')
       return if @path.start_with?(workspace_path)
 
       "Path must not be outside the workspace - you gave me #{@path}"
@@ -46,7 +46,7 @@ module Services
     end
 
     def delete_file
-      File.delete(@path)
+      File.delete(@path) if File.exist?(@path_to_file)
     end
 
     def read_file

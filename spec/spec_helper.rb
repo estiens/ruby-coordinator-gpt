@@ -1,8 +1,5 @@
-
 require 'pry'
-
-Dir['./lib/*.rb'].each { |file| require file }
-Dir['./lib/**/*.rb'].each { |file| require file }
+require_relative '../app/includes.rb'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

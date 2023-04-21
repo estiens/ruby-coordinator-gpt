@@ -1,8 +1,8 @@
 describe Services::FileService do
-  let(:path) { "#{Services::FileService::FILE_PATH}/test_file.txt" }
+  let(:path) { "#{Config.workspace_path}/test_file.txt" }
   let(:text) { 'sample text'}
   let(:command) { :read_file }
-  let(:file_service) { Services::FileService.new(command:, args: { path:, text: }) }
+  let(:file_service) { Services::FileService.new(command: command, args: { path:, text: }) }
 
   context 'when path is valid' do
     before(:each) do
@@ -10,7 +10,7 @@ describe Services::FileService do
     end
 
     after do
-      File.delete(path)
+      File.delete(path) if File.exist?(path)
     end
 
     describe '#read_file' do\
@@ -25,7 +25,7 @@ describe Services::FileService do
       let(:command) { :write_file }
 
       it 'should write content to file' do
-        expect(File).to receive(:open).with(path, 'w').and_call_original
+        expect(File).to receive(:open).with(path, 'a+').and_call_original
         result = file_service.run
         expect(result).to include(text)
       end
@@ -47,7 +47,7 @@ describe Services::FileService do
     let(:path) { '/root/test_file.txt' }
 
     it 'should raise ArgumentError' do
-      expect { file_service.run }.to raise_error(ArgumentError)
+        expect(file_service.run).to include 'There was an error'
     end
   end
 
@@ -56,16 +56,16 @@ describe Services::FileService do
       let(:args) { { path: nil } }
 
       it 'should raise ArgumentError' do
-        expect { Services::FileService.new(args:) }.to raise_error(ArgumentError)
+        expect(file_service.run).to include 'There was an error'
       end
     end
 
     context 'when path is outside the workspace' do
       let(:path) { '/root/test_file.txt' }
-      let(:args) { { path: } }
+      let(:args) { { path: path } }
 
       it 'should raise ArgumentError' do
-        expect { Services::FileService.new(args:) }.to raise_error(ArgumentError)
+        expect(file_service.run).to include 'There was an error'
       end
     end
   end

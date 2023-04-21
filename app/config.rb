@@ -6,8 +6,12 @@ class Config
     ENV['OPENAI_API_KEY']
   end
 
+  def self.serp_api_key
+    ENV.fetch('SERP_API_KEY', 'your_serp_api_key')
+  end
+
   def self.workspace_path
-    "#{Dir.pwd}/workspace"
+    "#{__dir__}/workspace"
   end
 
   def self.base_model

@@ -1,11 +1,13 @@
 require 'json'
 require 'pry'
-require_relative 'open_ai_client'
-require_relative 'workers/worker'
-# require_relative 'memory/postgres'
-# require_relative 'workers/base_worker'
+require_relative 'includes'
 
 class Runner
+
+  def self.console
+    binding.pry
+  end
+
   def initialize(objective: 'compile lists and description of the most used ruby gems in each of the past ten years')
     # @config = Config.new
     # @available_workers = BaseWorker.available_workers
@@ -100,3 +102,5 @@ class Runner
     "''
   end
 end
+
+Runner.console

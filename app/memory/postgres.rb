@@ -3,6 +3,7 @@ require 'uuidtools'
 require_relative 'base_memory'
 
 class PostgresMemory < BaseMemory
+  # need to create your database first
   def initialize
     super
 
