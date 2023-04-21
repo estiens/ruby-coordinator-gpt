@@ -1,0 +1,2 @@
+My available commands are at available_commands.txt and I must only use these, other commands will not work.
+I should write things down in this file if I want to remember them.
