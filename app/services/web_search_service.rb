@@ -1,5 +1,4 @@
 require_relative 'base_service'
-require 'google_search_results'
 module Services
   class WebSearchService < BaseService
     def initialize(command: nil, args: {})

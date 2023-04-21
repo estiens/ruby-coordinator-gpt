@@ -1,6 +1,3 @@
-require_relative 'base_service'
-require 'mail'
-
 module Services
   class EmailService < BaseService
     def initialize(command: nil, args: {})

@@ -1,8 +1,4 @@
 require_relative 'base_service'
-require 'nokogiri'
-require 'open-uri'
-require 'uri'
-require 'net/http'
 
 module Services
   class WebScrapeService < BaseService

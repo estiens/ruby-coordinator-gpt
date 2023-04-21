@@ -1,8 +1,4 @@
 require_relative 'base_service'
-require 'httparty'
-
-# TODO: refactor
-
 module Services
   class WeatherService < BaseService
     API_KEY = 'your_api_key'

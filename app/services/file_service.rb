@@ -1,6 +1,3 @@
-require_relative 'base_service'
-require_relative '../config'
-require 'fileutils'
 module Services
   class FileService < BaseService
     def initialize(command: nil, args: {})

@@ -1,5 +1,4 @@
 require_relative 'base_service'
-
 module Services
   class ShellCommandService < BaseService
     DISALLOWED_COMMANDS = %w[rm sudo].freeze
