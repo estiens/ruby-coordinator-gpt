@@ -1,5 +1,5 @@
 require_relative 'base_service'
-
+require 'nokogiri'
 module Services
   class WebScrapeService < BaseService
     def initialize(command: nil, args: {})
@@ -14,7 +14,9 @@ module Services
 
     def command_mapping
       {
-        scrape_text: :scrape_text
+        scrape_text: :scrape_text,
+        web_scrape: :scrape_text,
+        read_website: :scrape_text
       }
     end
 

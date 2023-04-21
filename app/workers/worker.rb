@@ -15,13 +15,15 @@ class Worker
     @summary = nil
     @messages = []
     @memory = PostgresMemory.new
+    @counter = 0
     # @spinner = TTY::Spinner.new('[:spinner]', format: :pulse_2)
   end
 
   def run
     return nil if @status == :success || @status == :failure
-    puts "Do you want to say anything"
-    @input = gets.chomp
+    raise if @counter > 30
+    @counter += 1
+
     context = @memory.get_context("#{@goal}, #{@last_action}")
     next_steps = request_next_step(context: "#{context} Last Action: #{@last_actions.last(5)}")
     @current_thought = next_steps[:thought]
@@ -74,7 +76,6 @@ class Worker
     # add context
     prompt = PromptBuilder.new(goal: @goal, last_actions: @last_actions.last(3)).worker_prompt
     prompt += "This is a summary of your last action: #{@summary}, it may have advice in it\n" if @summary
-    prompt += "\nI also have an important message from your coordinator: #{@input}\n" if @input.length.positive?
     prompt
   end
 

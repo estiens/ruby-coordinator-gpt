@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'dotenv'
+gem 'nokogiri'
 gem 'google_search_results'
 gem 'pg'
 gem 'pinecone'
