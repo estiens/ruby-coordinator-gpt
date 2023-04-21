@@ -5,7 +5,7 @@ require_relative 'includes'
 class Runner
 
   def self.console
-    binding.pry
+    binding.pry if ENV.fetch('CONSOLE', 'false') == 'true'
   end
 
   def initialize(objective: 'compile lists and description of the most used ruby gems in each of the past ten years')

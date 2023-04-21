@@ -15,6 +15,7 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    rake (13.0.6)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
@@ -30,7 +31,6 @@ GEM
     rspec-support (3.12.0)
     ruby-openai (3.7.0)
       httparty (>= 0.18.1)
-    textwrap (0.1.2)
     tiktoken_ruby (0.0.4-arm64-darwin)
     tty-cursor (0.7.1)
     tty-spinner (0.9.3)
@@ -45,9 +45,9 @@ DEPENDENCIES
   pg
   pinecone
   pry
+  rake
   rspec
   ruby-openai
-  textwrap
   tiktoken_ruby
   tty-spinner
   uuidtools
