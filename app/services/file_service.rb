@@ -15,7 +15,9 @@ module Services
     def check_path
       return 'You must provide a path' if @path.nil?
 
-      # @path.gsub!('./workspace', 'workspace')
+      @path.gsub!('./', "#{workspace_path}/")
+      @path.gsub!('//', '/')
+      @path.gsub!('/workspace/workspace', '/workspace')
       # @path.gsub!('workspace', workspace_path)
       # @path = "#{workspace_path}/#{@path}" unless @path.start_with?(workspace_path)
       # @path.gsub!('//', '/')
@@ -37,6 +39,7 @@ module Services
         append_file: :append_file,
         list: :list_directory,
         list_directory: :list_directory,
+        list_dir: :list_directory,
         create_directory: :create_directory,
         delete_file: :delete_file
       }

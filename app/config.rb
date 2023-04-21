@@ -10,6 +10,10 @@ class Config
     ENV.fetch('SERP_API_KEY', 'your_serp_api_key')
   end
 
+  def self.app_directory
+    __dir__
+  end
+
   def self.workspace_path
     "#{__dir__}/workspace"
   end

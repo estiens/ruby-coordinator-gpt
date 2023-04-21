@@ -1,4 +1,12 @@
-file_service:
+ask_a_robot:
+  description: "Ask a friendly AI assistant your question and see if they know the answer"
+  arguments: "Takes a :question argument with the question you want to ask"
+  commands:
+    - :ask
+  args:
+    - :question
+
+  file_service:
   description: "Work with files in your workspace at #{Services::FileService::FILE_PATH}"
   arguments: "Takes a :path argument with the absolute path to the file or directory"
   commands:

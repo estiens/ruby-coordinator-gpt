@@ -1,9 +1,9 @@
 require_relative 'base_service'
+require 'google_search_results'
 module Services
   class WebSearchService < BaseService
     def initialize(command: nil, args: {})
       super(command: command, args: args)
-
       @query = args[:query]
     end
 
@@ -13,7 +13,9 @@ module Services
 
     def command_mapping
       {
-        search: :search
+        search: :search,
+        web_search: :search,
+        google: :search
       }
     end
 

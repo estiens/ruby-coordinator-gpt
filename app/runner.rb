@@ -8,6 +8,10 @@ class Runner
     binding.pry if ENV.fetch('CONSOLE', 'false') == 'true'
   end
 
+  def self.test_worker
+    Worker.new.run
+  end
+
   def initialize(objective: 'compile lists and description of the most used ruby gems in each of the past ten years')
     # @config = Config.new
     # @available_workers = BaseWorker.available_workers
@@ -23,7 +27,6 @@ class Runner
     worker = Worker.new(name: 'web_search',
                         goal: 'search for the best ruby gems for making games and compile a document about the top 10')
     @current_workers << worker
-    binding.pry
   end
 
   def prompt
@@ -104,3 +107,4 @@ class Runner
 end
 
 Runner.console
+Runner.test_worker

@@ -11,15 +11,16 @@ class BaseMemory
     raise NotImplementedError
   end
 
-  def get_context(data, num = 5)
+  def get_context(data, num = 1)
     raise NotImplementedError
   end
 
-  def summarize_memory(memory, max_tokens: 2500)
-    return @client.summarize_memory(memory) if get_tokens(memory) < max_tokens
+  def summarize_memory(result:, last_actions:, max_tokens: 3000)
+    return @client.summarize_memory(result, last_actions) if get_tokens(result) < max_tokens
 
     text_chunks = chunk(memory, max_tokens)
-    text_chunks.map { |chunk| @client.get_summary(text: chunk) }
+    memories = text_chunks.map { |chunk| @client.get_summary(text: chunk) }
+    @client.summarize_memory(memories.join("\n"), last_actions)
   end
 
   def summarize_text(text, max_tokens: 2500)

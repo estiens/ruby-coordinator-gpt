@@ -1,22 +1,24 @@
 class MemoryHandler
   # trying string extraction
   def self.extract_data_from_response(response)
-    match = response.match(/^THOUGHT:\s*(?<thought>.+)\nCOMMAND:\s*(?<command>.+)\nARGUMENTS:\s*(?<args>.+)\nREFLECTIONS:\s*(?<reflections>.*)(?<!\n)$/m)
-    return response if match.nil?
+    thought_match = /THOUGHT:\s*(.*)\s*COMMAND/
+    command_match = /COMMAND:\s*(.*)\s*ARG/
+    arguments_match = /ARGUMENTS:\s*(.*)\s*REF/
+    reflections_match = /REFLECTIONS:\s*(.*)\s*/
 
     hash = {}
-    hash[:thought] = match[:thought]
-    hash[:command] = match[:command]
-
-    # Parse the arguments
-    args_str = match[:args]
-    args = args_str.split(',').map do |arg|
-      k, v = arg.strip.split('=')
-      [k.to_sym, v]
-    end.to_h
-    hash[:arguments] = args
-    hash[:argument_string] = args_str
-    hash[:reflections] = match[:reflections]
+    hash[:thought] = response.match(thought_match)&.[]1
+    hash[:command] = response.match(command_match)&.[]1
+    args_str = response.match(arguments_match)&.[]1
+    unless args_str.nil?
+      args = args_str.split(',').map do |arg|
+        k, v = arg.strip.split('=')
+        [k.to_sym, v]
+      end.to_h
+      hash[:arguments] = args
+      hash[:argument_string] = args_str
+    end
+    hash[:reflections] = response.match(reflections_match)&.[]1
     hash
   end
 

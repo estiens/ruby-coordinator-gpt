@@ -14,7 +14,8 @@ module Services
 
     def command_mapping
       {
-        run_shell_command: :run_shell_command
+        run_shell_command: :run_shell_command,
+        shell_command: :run_shell_command
       }
     end
 

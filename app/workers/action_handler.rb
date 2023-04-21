@@ -1,3 +1,6 @@
+require_relative '../includes'
+require_relative 'action_handler'
+require_relative 'memory_handler'
 class ActionHandler
 
   def self.action_dispatcher(command:, args:)
@@ -20,7 +23,7 @@ class ActionHandler
   end
 
   def self.available_commands
-    @available_commands ||= YAML.load_file('lib/services/available_commands.yml')
+    @available_commands ||= YAML.load_file("#{Config.app_directory}/services/available_commands.yml")
   end
 
   def self.worker_abilities

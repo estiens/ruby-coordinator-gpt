@@ -6,6 +6,7 @@ class PostgresMemory < BaseMemory
   # need to create your database first
   def initialize
     super
+    puts Config.memory_configuration
 
     @conn = PG.connect(Config.memory_configuration)
     @max_context_size = 4000
@@ -37,7 +38,7 @@ class PostgresMemory < BaseMemory
     end
   end
 
-  def get_context(data, num = 5)
+  def get_context(data, num = 1)
     vector = create_ada_embedding(data)
 
     all_vectors = vectors_from_memory
