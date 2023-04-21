@@ -32,6 +32,7 @@ GEM
     ruby-openai (3.7.0)
       httparty (>= 0.18.1)
     tiktoken_ruby (0.0.4-arm64-darwin)
+    tiktoken_ruby (0.0.4-x86_64-linux)
     tty-cursor (0.7.1)
     tty-spinner (0.9.3)
       tty-cursor (~> 0.7)
@@ -39,6 +40,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   dotenv
