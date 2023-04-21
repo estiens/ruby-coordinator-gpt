@@ -3,13 +3,22 @@ require 'pry'
 require_relative 'includes'
 
 class Runner
-
   def self.console
-    binding.pry if ENV.fetch('CONSOLE', 'false') == 'true'
+    return unless ENV.fetch('CONSOLE', false).downcase == 'true'
+
+    binding.pry
   end
 
   def self.test_worker
+    return unless ENV.fetch('TEST_WORKER', false).downcase == 'true'
+
     Worker.new.run
+  end
+
+  def self.test_runner
+    return unless ENV.fetch('TEST_RUNNER', false).downcase == 'true'
+
+    new
   end
 
   def initialize(objective: 'compile lists and description of the most used ruby gems in each of the past ten years')
@@ -46,17 +55,19 @@ class Runner
     return 'You currently have no workers' if @current_workers.empty?
 
     string = "You currently have the following workers:\n"
-    string += @current_workers.map { |worker| "worker_name: #{worker.name}, status: #{worker.status}" }.join('\n')
+    string += @current_workers.map do |worker|
+      "worker_name: #{worker.name}, status: #{worker.status}"
+    end.join('\n')
     string
   end
 
   def current_status_prompt
     return 'You currently have no status' if @current_status.nil?
 
-    ''"
+    "
     The most recent thing you did was:
     #{@current_status}
-    "''
+    "
   end
 
   def end_prompt
@@ -94,7 +105,7 @@ class Runner
   end
 
   def base_prompt
-    ''"
+    "
     You are an autonomous AI task completion platform that can create workers. Your workers have the following abilities: search_web, create_file, edit_file, delete_file, execute_shell_command, read_website, summarize_text.
 
     Your objective is to:
@@ -102,9 +113,6 @@ class Runner
     You are currently just starting so you have no workers
 
     Your workers will work in parallel, so please only assign them tasks that can be done simultaneously. When they finish you will receive a report of their deliverables. I will continually report back to you the status of their progress, and you can decide your next steps. You can read_files, write_files, create_worker, or ask_user_question, or simply wait.
-    "''
+    "
   end
 end
-
-Runner.console
-Runner.test_worker

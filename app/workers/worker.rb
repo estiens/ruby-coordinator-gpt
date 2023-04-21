@@ -6,7 +6,7 @@ class Worker
   attr_reader :name, :task, :status
 
   def initialize(name: 'code',
-                 goal: 'Try to become conscious. Explore all avenues. Write things down. Talk to others.')
+                 goal: 'Find the code that runs you. Review it, and make suggestions to improve it or improve it yourself.')
     @name = name
     @goal = goal
     @status = :in_progress
@@ -14,7 +14,7 @@ class Worker
     @last_actions = []
     @summary = nil
     @messages = []
-    @memory = PostgresMemory.new
+    @memory = Config.memory_module.new
     @counter = 0
     # @spinner = TTY::Spinner.new('[:spinner]', format: :pulse_2)
   end
@@ -68,6 +68,7 @@ class Worker
 
   def request_next_step(context: '')
     @messages << { role: 'user', content: worker_prompt + "Context: This is a relevant action you've taken from the past. If it answers your questions you don't have to take it again.\n: #{context}" }
+    @messages << { role: 'user', content: "Don't use commands that aren't here! Use these! #{available_commands}"}
     response = open_ai.chat
     extract_data_from_response(response)
   end
@@ -76,7 +77,7 @@ class Worker
     # add context
     prompt = PromptBuilder.new(goal: @goal, last_actions: @last_actions.last(3)).worker_prompt
     prompt += "This is a summary of your last action: #{@summary}, it may have advice in it\n" if @summary
-    prompt
+    prompt += "Do not ever use commands not in your command list. Prefer using shell commands."
   end
 
   def available_commands
@@ -91,4 +92,3 @@ class Worker
     ActionHandler.worker_abilities
   end
 end
-Worker.new.run

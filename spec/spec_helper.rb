@@ -1,5 +1,7 @@
 require 'pry'
-require_relative '../app/includes.rb'
+ENV['USE_MOCK_MEMORY'] = 'true'
+
+require_relative '../app/includes'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

@@ -34,6 +34,14 @@ class Config
     ENV.fetch('CLEAR_DB_ON_START', 'false').downcase == 'true'
   end
 
+  def self.memory_module
+    # return PineconeMemory if memory_type == 'pinecone'
+    return MockMemory if ENV.fetch('USE_MOCK_MEMORY', 'false').downcase == 'true'
+    return PostgresMemory if memory_type == 'postgres'
+
+    raise 'Invalid memory type'
+  end
+
   def self.memory_configuration
     # return pinecone_config if memory_type == 'pinecone'
 
