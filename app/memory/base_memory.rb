@@ -15,19 +15,19 @@ class BaseMemory
     raise NotImplementedError
   end
 
-  def summarize_memory(result:, last_actions:, max_tokens: 3000)
-    return @client.summarize_memory(result, last_actions) if get_tokens(result) < max_tokens
+  def summarize_memory(summarize, max_tokens: 3000)
+    return @client.summarize_memory(summarize) if get_tokens(summarize) < max_tokens
 
-    text_chunks = chunk(memory, max_tokens)
+    text_chunks = chunk(summarize, max_tokens)
     memories = text_chunks.map { |chunk| @client.get_summary(text: chunk) }
-    @client.summarize_memory(memories.join("\n"), last_actions)
+    @client.summarize_memory(memories.join("\n"))
   end
 
   def summarize_text(text, max_tokens: 2500)
     return @client.get_summary(text: text) if get_tokens(text) < max_tokens
 
     text_chunks = chunk(text, max_tokens)
-    text_chunks.map { |chunk| @client.get_summary(text: chunk) }
+    text_chunks.map { |chunk| @client.get_summary(text: chunk) }.join("\n")
   end
 
   # private
@@ -41,12 +41,8 @@ class BaseMemory
     tokens.to_h { |token| [token, bias.to_i] }.length
   end
 
-  def create_ada_embedding(data)
-    puts "Creating embedding for #{data}"
-    if get_tokens(data) > 5000
-      data = summarize_text(data, max_tokens: 4000)
-      puts "Summarized data to #{data}"
-    end
+  def create_ada_embedding(data, max_tokens: 3000)
+    data = summarize_text(data, max_tokens: max_tokens) if get_tokens(data) > max_tokens
     vector = OpenAiClient.get_embeddings(data)
     embedding = vector['data']&.first&.dig('embedding')
     embedding.is_a?(Array) ? embedding : [embedding]

@@ -1,24 +1,31 @@
 require 'json'
+require 'logger'
 require 'pry'
+require 'tty-spinner'
+
 require_relative 'includes'
 
 class Runner
   def self.console
-    return unless ENV.fetch('CONSOLE', false).downcase == 'true'
+    return unless ENV.fetch('CONSOLE', 'false').downcase == 'true'
 
     binding.pry
   end
 
   def self.test_worker
-    return unless ENV.fetch('TEST_WORKER', false).downcase == 'true'
+    return unless ENV.fetch('TEST_WORKER', 'false').downcase == 'true'
 
     Worker.new.run
   end
 
   def self.test_runner
-    return unless ENV.fetch('TEST_RUNNER', false).downcase == 'true'
+    return unless ENV.fetch('TEST_RUNNER', 'false').downcase == 'true'
 
     new
+  end
+
+  def self.spinner
+    @spinner ||= TTY::Spinner.new('[:spinner] Doing Work', format: :arrow_pulse)
   end
 
   def initialize(objective: 'compile lists and description of the most used ruby gems in each of the past ten years')
@@ -116,3 +123,7 @@ class Runner
     "
   end
 end
+
+Runner.console
+Runner.test_runner
+Runner.test_worker

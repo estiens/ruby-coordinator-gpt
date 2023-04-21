@@ -90,7 +90,8 @@ Metrics/BlockLength:
     - 'spec/**/*.rb'
     - '**/*.gemspec'
 
-Metrics/ClassLength:
+Layout/ClassLength:
+  Max: 300
   Exclude:
     - lib/rubocop/config_obsoletion.rb
     - lib/rubocop/options.rb

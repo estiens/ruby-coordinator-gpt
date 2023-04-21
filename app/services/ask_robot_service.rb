@@ -12,6 +12,7 @@ module Services
 
     def command_mapping
       {
+        ask_a_robot: :ask_question,
         ask: :ask_question,
         ask_question: :ask_question
       }

@@ -1,94 +1,152 @@
-require_relative 'memory_handler'
-require_relative 'action_handler'
 require_relative '../includes'
+
+require_relative 'action_handler'
+require_relative 'memory_handler'
+
 require_relative '../prompts/prompt_builder'
 class Worker
   attr_reader :name, :task, :status
 
-  def initialize(name: 'code',
-                 goal: 'Find the code that runs you. Review it, and make suggestions to improve it or improve it yourself.')
+  def self.logger
+    @logger ||= Logger.new($stdout)
+  end
+
+  def self.spinner
+    @spinner ||= Runner.spinner
+  end
+
+  def initialize(name: 'PublisherAI')
     @name = name
-    @goal = goal
     @status = :in_progress
-    @current_thought = nil
     @last_actions = []
-    @summary = nil
+    @summary_last_action = nil
+    @actual_last_result = nil
+    @context_from_memory = nil
     @messages = []
     @memory = Config.memory_module.new
     @counter = 0
-    # @spinner = TTY::Spinner.new('[:spinner]', format: :pulse_2)
   end
 
   def run
     return nil if @status == :success || @status == :failure
-    raise if @counter > 30
+
+    logger.info("Round #{@counter} start")
+    ask_for_human_input if (@counter % 5).zero?
+    @context_from_memory = if @summary_last_action.nil?
+                             ActionHandler.worker_abilities.join(',')
+                           else
+                             @memory.get_context(@summary_last_action)
+                           end
+
+    next_steps = request_next_step
+    logger.info("\nNEXT_STEPS: #{next_steps.inspect}\n")
+
     @counter += 1
 
-    context = @memory.get_context("#{@goal}, #{@last_action}")
-    next_steps = request_next_step(context: "#{context} Last Action: #{@last_actions.last(5)}")
-    @current_thought = next_steps[:thought]
-    puts "CURRENT THOUGHT: #{@current_thought} - #{next_steps.inspect}"
     take_action_from(next_steps)
     run
   end
 
-  def format_next_steps(next_steps)
-    "---THOUGHT: #{next_steps[:thought]}\nCOMMAND: #{next_steps[:command]}\nARGUMENTS:#{next_steps[:arguments]}\nREFLECTIONS: #{next_steps[:reflections]}\n---"
+  private
+
+  def ask_for_human_input
+    logger.info('Pausing to see if there is anything you want to add or correct')
+    @input = gets.chomp
+  end
+
+  def logger
+    self.class.logger
+  end
+
+  def spinner
+    self.class.spinner
+  end
+
+  def formatted_thinking(next_steps)
+    thinking = "---\nReasoning behing the action"
+    thinking += "THOUGHT: #{next_steps[:thought]}\n"
+    thinking += "COMMAND: #{next_steps[:command]}ARGUMENTS:#{next_steps[:arguments]}\n"
+    thinking += "REFLECTIONS: #{next_steps[:reflections]}\n---"
+    thinking
   end
 
   def take_action_from(next_steps)
+    command, args = parse_command(next_steps)
+    result = ActionHandler.action_dispatcher(command: command, args: args)
+    @actual_last_result = "\n#{formatted_thinking(next_steps)}\nRESULT:#{result}"
+
+    # add the last results to memory and get summary of it with advice
+    @memory.add(@actual_last_result)
+    if @actual_last_result.length < 2000
+      @messages << { role: 'user', content: "This was your last command: #{@actual_last_result}" }
+    end
+    summarize_last_action
+
+    @last_actions << "Your last action was #{command} with args #{args}"
+  end
+
+  def summarize_last_action
+    to_summarize = @actual_last_result
+    unless @last_actions.empty?
+      to_summarize += "Previous Actions: #{@last_actions.last(3).join(',')}"
+    end
+    @summary_last_action = @memory.summarize_memory(to_summarize)
+  end
+
+  def parse_command(next_steps)
     command = next_steps[:command]
     arguments = next_steps[:arguments]
     args = {}
-    arguments&.each { |k, v| args[k.to_sym] = v }
-    result = ActionHandler.action_dispatcher(command: command, args: args)
-    action_and_result = "#{format_next_steps(next_steps)}  RESULT: #{result}"
-    @summary = @memory.summarize_memory(result: action_and_result, last_actions: @last_actions.last(3).join(','))
-    @last_actions << "Your last action was #{command} with args #{args}"
-    result
+    arguments&.each { |k, v| args[k&.to_sym] = v }
+    [command, args]
   end
 
   def open_ai
-    OpenAiClient.new(messages: @messages.last(2))
+    messages = [
+      { role: 'system', content: PromptBuilder.new.system_prompt_for_worker }, @messages.last(4)
+    ].flatten
+    binding.pry
+    OpenAiClient.new(messages: messages)
   end
 
   def extract_data_from_response(response)
     MemoryHandler.extract_data_from_response(response)
   end
 
+  # not using JSON at the moment
   def clean_and_balance_json_string(json_string)
     MemoryHandler.clean_and_balance_json_string(json_string)
   end
 
+  # implement fuzzy find?
   def find_service(command)
+    @status = :success if command == 'job_success'
+    @status = :failure if command == 'job_failure'
     ActionHandler.find_service(command)
   end
 
-  def find_current_context; end
-
-  def request_next_step(context: '')
-    @messages << { role: 'user', content: worker_prompt + "Context: This is a relevant action you've taken from the past. If it answers your questions you don't have to take it again.\n: #{context}" }
-    @messages << { role: 'user', content: "Don't use commands that aren't here! Use these! #{available_commands}"}
+  def request_next_step
+    unless @context_from_memory.nil?
+      context = "This is relevant information for you based on an action in the past:\n"
+      context += @context_from_memory
+      @messages << { role: 'user', content: context }
+    end
+    @messages << { role: 'user', content: worker_prompt }
     response = open_ai.chat
     extract_data_from_response(response)
   end
 
   def worker_prompt
-    # add context
-    prompt = PromptBuilder.new(goal: @goal, last_actions: @last_actions.last(3)).worker_prompt
-    prompt += "This is a summary of your last action: #{@summary}, it may have advice in it\n" if @summary
-    prompt += "Do not ever use commands not in your command list. Prefer using shell commands."
-  end
+    custom = []
 
-  def available_commands
-    ActionHandler.available_commands
-  end
+    unless @input.nil?
+      custom << ["This is advice being offered from a human that wants to help: #{@input}"]
+      @input = nil
+    end
 
-  def worker_commands
-    ActionHandler.worker_commands
-  end
-
-  def worker_abilities
-    ActionHandler.worker_abilities
+    last3 = @last_actions.last(3)
+    summary = @summary_last_action
+    p = PromptBuilder.new(last_actions: last3, summary: summary, custom_prompts: custom)
+    p.worker_prompt
   end
 end

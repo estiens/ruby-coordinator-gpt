@@ -18,10 +18,12 @@ module Services
       @path.gsub!('./', "#{workspace_path}/")
       @path.gsub!('//', '/')
       @path.gsub!('/workspace/workspace', '/workspace')
+      @path.gsub!('/worker_directory', '/worker_instructions')
+      @path.gsub!('/workspace/worker_instructions', '/worker_instructions')
       # @path.gsub!('workspace', workspace_path)
       # @path = "#{workspace_path}/#{@path}" unless @path.start_with?(workspace_path)
       # @path.gsub!('//', '/')
-      return if @path.start_with?(workspace_path)
+      return if @path.start_with?(Config.app_directory) || @path.start_with?(workspace_path)
 
       "Path must not be outside the workspace - you gave me #{@path}"
     end
@@ -50,11 +52,11 @@ module Services
     end
 
     def read_file
-      contents = nil
+      @contents = nil
       File.open(@path, 'r') do |file|
-        contents = file.read
+        @contents = file.read
       end
-      contents
+      "You successfully read a file at #{@path}\nContents: #{@contents}"
     end
 
     def write_file

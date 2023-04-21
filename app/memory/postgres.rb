@@ -19,9 +19,8 @@ class PostgresMemory < BaseMemory
 
   def add(data)
     vector = create_ada_embedding(data)
-    unless vector.is_a? Array
-      return nil
-    end
+    return nil unless vector.is_a? Array
+
     id = UUIDTools::UUID.random_create
     @conn.exec_params(
       'INSERT INTO memory (id, vector, data) VALUES ($1, $2, $3);',
@@ -39,6 +38,8 @@ class PostgresMemory < BaseMemory
   end
 
   def get_context(data, num = 1)
+    return nil if data.nil?
+
     vector = create_ada_embedding(data)
 
     all_vectors = vectors_from_memory
@@ -67,7 +68,9 @@ class PostgresMemory < BaseMemory
 
   def vectors_from_memory
     result = @conn.exec('SELECT id, vector, data FROM memory;')
-    result.map { |row| [row['id'], row['vector'].gsub('{', '').gsub('}', '').split(',').map(&:to_f), row['data']] }
+    result.map do |row|
+      [row['id'], row['vector'].gsub('{', '').gsub('}', '').split(',').map(&:to_f), row['data']]
+    end
   end
 
   def to_pg_array(array)
@@ -75,7 +78,9 @@ class PostgresMemory < BaseMemory
   end
 
   def cosine_similarity(array_one, array_two)
-    return nil unless array_one.is_a?(Array) && array_two.is_a?(Array) && array_one.size == array_two.size
+    unless array_one.is_a?(Array) && array_two.is_a?(Array) && array_one.size == array_two.size
+      return nil
+    end
 
     array_one.flatten!
     array_two.flatten!

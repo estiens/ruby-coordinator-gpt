@@ -1,7 +1,6 @@
 class PromptBuilder
-  def initialize(custom_prompts: [], goal: @goal, summary: nil, last_actions: [])
+  def initialize(custom_prompts: [], summary: nil, last_actions: [])
     @last_actions = last_actions
-    @goal = goal
     @custom_prompts = custom_prompts
     @summary = summary
   end
@@ -18,13 +17,17 @@ class PromptBuilder
     prompt
   end
 
+  def system_prompt_for_worker
+    prompts['system_prompt_for_worker']
+  end
+
   private
 
   def prompt_start
-    prompt = "#{prompts['prompt_start']}\nYour overarching goal is: #{@goal}.\n"
-    work_instructions = "#{Config.app_directory}/worker_directory/worker_instructions.txt"
+    prompt = "#{prompts['prompt_start']}\n"
+    work_instructions = "#{Config.app_directory}/worker_instructions/worker_instructions.txt"
     prompt += "You have instructions you should read at #{work_instructions}.\n"
-    prompt += "There is also available_commands.yml that lists all the commands you can use.\n"
+    prompt += "There is also an available_commands.txt file in the same directory with your available commands\n"
     prompt += "You can also use shell commands.\n"
     prompt += "You cannot make up your own commands.\n"
     prompt += 'There is also a file called learnings.txt where you should write down anything'

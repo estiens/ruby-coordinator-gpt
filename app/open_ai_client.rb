@@ -10,16 +10,31 @@ class OpenAiClient
     client.embeddings(parameters: { input: [text], model: 'text-embedding-ada-002' })
   end
 
-  def initialize(messages: [], model: 'gpt-4', temperature: 0.7, use_mock: false)
-    @client = use_mock ? OpenAiMockClient.new : OpenAI::Client.new(access_token: Config.open_ai_api_key)
+  def self.spinner
+    @spinner = Runner.spinner
+  end
+
+  def initialize(messages: [], model: 'gpt-4', temperature: 0.9, use_mock: false)
+    @use_mock = use_mock
+    @client = set_client
     @model = model
     @temperature = temperature
     @messages = messages
-    # @spinner = TTY::Spinner.new('[:spinner] Checking on that ...', format: :pulse_2)
     @mock_client = use_mock ? OpenAiMockClient.new : nil
   end
 
+  def set_client
+    return OpenAiMockClient if @use_mock
+
+    OpenAI::Client.new(access_token: Config.open_ai_api_key)
+  end
+
+  def spinner
+    @spinner ||= self.class.spinner
+  end
+
   def chat(model: nil)
+    spinner.auto_spin
     model ||= @model
     response = client.chat(
       parameters: {
@@ -28,6 +43,7 @@ class OpenAiClient
         temperature: @temperature
       }
     )
+    spinner.stop
     puts "RESPONSE #{response}"
     response['choices'][0]['message']['content']
   end
@@ -55,17 +71,10 @@ class OpenAiClient
     chat(model: 'gpt-3.5.turbo')
   end
 
-  def worker_chat
-    system_message = { role: 'system',
-                       content: 'You are an autonomous AI task worker that works towards a goal. Given the context of the current desired goal, you respond with the next action.' }
-    @messages.unshift(system_message)
-    chat
-  end
-
-  def summarize_memory(memory, previous_action)
+  def summarize_memory(to_be_summarized)
     @messages = [
       { role: 'user',
-        content: "You are a summarizer for AI autonomous agents. This is a report back of the most recent action one took, please provide a summary of what happened, and whether it appeared successful or not. Make sure to include it's action. If it was successful remind it of what it succeeded at. If it retrieved pertinent information, please keep all hyperlinks and useful info. If it's logic seems faulty correct it. I will also send you it's previous action, if it appears to be doing the same thing, help it. Most recent action: #{memory}, Previous action: #{previous_action}" }
+        content: "You are a summarizer for AI autonomous agents. This is a report back of the most recent action one took, please provide a summary of what happened, and whether it appeared successful or not. Make sure to include it's action. If it was successful remind it of what it succeeded at. If it retrieved pertinent information, please keep all hyperlinks and useful info. If it's logic seems faulty correct it. I will also send you it's previous action, if it appears to be doing the same thing, help it.\n---\n#{to_be_summarized}" }
     ]
     chat_with_gpt_3_5_turbo
   end
@@ -78,11 +87,13 @@ class OpenAiClient
     chat_with_gpt_3_5_turbo
   end
 
+  # TODO: Figure out saving mocked responses
+
   def set_mock_response(input, response)
-    @mock_client.set_mock_response(input, response) if @mock_client
+    @mock_client&.set_mock_response(input, response)
   end
 
   def clear_mock_responses
-    @mock_client.clear_mock_responses if @mock_client
+    @mock_client&.clear_mock_responses
   end
 end
